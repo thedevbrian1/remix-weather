@@ -6,6 +6,7 @@ import {
   useLoaderData,
   useNavigation,
   useRouteError,
+  useSearchParams,
 } from "@remix-run/react";
 import { ErrorIcon, Search, ThreeDots } from "~/icon";
 
@@ -85,6 +86,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Index() {
   let weather = useLoaderData<typeof loader>();
 
+  console.log({ weather });
+
+  let [searchParams] = useSearchParams();
+  let q = searchParams.get("q") || "";
+
   let navigation = useNavigation();
 
   let isSearching = Boolean(
@@ -113,8 +119,14 @@ export default function Index() {
           <span className="text-4xl lg:text-6xl font-semibold">
             {weather.main.temp} &deg;<span className="lg:text-4xl">C</span>
           </span>
-          <span className="text-2xl">{weather.name}</span>
+          <img
+            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+            alt="Weather icon"
+            className="w-16"
+          />
           <span>{weather.weather[0].main}</span>
+
+          <span className="text-2xl">{weather.name}</span>
         </div>
       </div>
       <div className="backdrop-blur-md lg:col-span-2 px-4 lg:px-5">
@@ -125,6 +137,7 @@ export default function Index() {
             name="q"
             placeholder="Search location"
             aria-label="Search location"
+            defaultValue={q}
             className="bg-transparent border border-gray-300 px-4 py-2 placeholder:text-gray-300"
           />
           <button type="submit" className="bg-orange-500 p-2 text-black">
@@ -135,7 +148,9 @@ export default function Index() {
           <h2 className="font-semibold">Locations</h2>
           <ul className="space-y-2 text-gray-300 mt-4">
             {locations.map((item, index) => (
-              <li key={index}>{item}</li>
+              <li key={index}>
+                <Link to={`/?q=${item}`}>{item}</Link>
+              </li>
             ))}
           </ul>
         </div>
